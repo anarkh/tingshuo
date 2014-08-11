@@ -77,6 +77,13 @@ class CI_Router {
 	 * @access public
 	 */
 	var $default_controller;
+	/**
+	 * 默认控制器后缀
+	 *
+	 * @var string
+	 * @access public
+	 */
+	var $default_controller_Suffix = 'Controller';
 
 	/**
 	 * Constructor
@@ -140,7 +147,7 @@ class CI_Router {
 
 		$this->routes = ( ! isset($route) OR ! is_array($route)) ? array() : $route;
 		unset($route);
-
+                
 		// Set the default controller so we can display it in the event
 		// the URI doesn't correlated to a valid controller.
 		$this->default_controller = ( ! isset($this->routes['default_controller']) OR $this->routes['default_controller'] == '') ? FALSE : strtolower($this->routes['default_controller']);
@@ -150,7 +157,7 @@ class CI_Router {
 		{
 			return $this->_validate_request($segments);
 		}
-
+                
 		// Fetch the complete URI string
 		$this->uri->_fetch_uri_string();
 
@@ -165,7 +172,7 @@ class CI_Router {
 
 		// Compile the segments into an array
 		$this->uri->_explode_segments();
-
+                
 		// Parse any custom routing that may exist
 		$this->_parse_routes();
 
@@ -225,12 +232,12 @@ class CI_Router {
 	function _set_request($segments = array())
 	{
 		$segments = $this->_validate_request($segments);
-
+                
 		if (count($segments) == 0)
 		{
 			return $this->_set_default_controller();
 		}
-
+                
 		$this->set_class($segments[0]);
 
 		if (isset($segments[1]))
@@ -269,8 +276,9 @@ class CI_Router {
 		}
 
 		// Does the requested controller exist in the root folder?
-		if (file_exists(APPPATH.'controllers/'.$segments[0].'.php'))
+		if (file_exists(APPPATH.'controllers/'.$segments[0].$this->default_controller_Suffix.'.php'))
 		{
+                        $segments[0] = $segments[0].$this->default_controller_Suffix;
 			return $segments;
 		}
 
@@ -284,7 +292,7 @@ class CI_Router {
 			if (count($segments) > 0)
 			{
 				// Does the requested controller exist in the sub-folder?
-				if ( ! file_exists(APPPATH.'controllers/'.$this->fetch_directory().$segments[0].'.php'))
+				if ( ! file_exists(APPPATH.'controllers/'.$this->fetch_directory().$segments[0].$this->default_controller_Suffix.'.php'))
 				{
 					if ( ! empty($this->routes['404_override']))
 					{
@@ -319,7 +327,7 @@ class CI_Router {
 				}
 
 				// Does the default controller exist in the sub-folder?
-				if ( ! file_exists(APPPATH.'controllers/'.$this->fetch_directory().$this->default_controller.'.php'))
+				if ( ! file_exists(APPPATH.'controllers/'.$this->fetch_directory().$this->default_controller.$this->default_controller_Suffix.'.php'))
 				{
 					$this->directory = '';
 					return array();
