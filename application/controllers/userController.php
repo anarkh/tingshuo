@@ -30,11 +30,32 @@ class UserController extends CI_Controller{
         $param['imei'] = $this->input->get_post('imei', TRUE);
         
         if(empty($param['account']) || empty($param['password']) || empty($param['nickname'])){
-            return false;
+            $result = array(
+                $status = 101,
+                $msg = '请填写账号，密码和昵称'
+            );
+            $resultJson = json_encode($result);
+            echo $resultJson;
+            exit;
         }
         $this->load->model('UserModel');
-        $result = $this->UserModel->insert($param);
-        print_r($result);
-        
+        if(!$this->UserModel->verifyAccount($param['account'])){
+            $result = array(
+                $status = 102,
+                $msg = '账号已经存在'
+            );
+            $resultJson = json_encode($result);
+            echo $resultJson;
+            exit;
+        }
+        $param['password'] = md5($param['password']);
+        $data = $this->UserModel->insert($param);
+        $result = array(
+            $status = 100,
+            $msg = '注册成功'
+        );
+        $resultJson = json_encode($result);
+        echo $resultJson;
+        exit;
     }
 }

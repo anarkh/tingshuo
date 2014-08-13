@@ -49,7 +49,7 @@ class CommentModel extends CI_Model {
         
         if(is_array($param) && count($param) > 0){
             foreach ($param as $key => $value) {
-                $data[$key] = $this->db->escape($value);
+                $data[$key] = $this->db->escape_str($value);
             }
         }
         
@@ -76,17 +76,9 @@ class CommentModel extends CI_Model {
         unset($param['user_id']);
         if(is_array($param) && count($param) > 0){
             foreach ($param as $key => $value) {
-                $data[$key] = $this->db->escape($value);
+                $data[$key] = $this->db->escape_str($value);
             }
         }
-        $nickname = $this->db->escape($param['nickname']);
-        $head = $this->db->escape($param['head']);
-        $content = $this->db->escape($param['content']);
-        $location = $this->db->escape($param['location']);
-        $geo = $this->db->escape($param['geo']);
-        $longitude = $this->db->escape($param['longitude']);
-        $latitude = $this->db->escape($param['latitude']);
-        $time = $this->db->escape($param['time']);
         
         if(empty($data['post_id']) || empty($data['user_id']) || empty($data['content'])){
             return false;

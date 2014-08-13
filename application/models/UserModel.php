@@ -46,10 +46,9 @@ class UserModel extends CI_Model {
      * @return array
      */
     function insert($param) {
-        
         if(is_array($param) && count($param) > 0){
             foreach ($param as $key => $value) {
-                $data[$key] = $this->db->escape($value);
+                $data[$key] = $this->db->escape_str($value);
             }
         }
         
@@ -83,7 +82,7 @@ class UserModel extends CI_Model {
         $user_id = $param['id'];
         if(is_array($param) && count($param) > 0){
             foreach ($param as $key => $value) {
-                $data[$key] = $this->db->escape($value);
+                $data[$key] = $this->db->escape_str($value);
             }
         }
         
@@ -124,7 +123,7 @@ class UserModel extends CI_Model {
     function login($param) {
         if(is_array($param) && count($param) > 0){
             foreach ($param as $key => $value) {
-                $data[$key] = $this->db->escape($value);
+                $data[$key] = $this->db->escape_str($value);
             }
         }
         
@@ -219,6 +218,7 @@ class UserModel extends CI_Model {
         $result = $this->db->update($this->db_name, $data);
         return $result;
     }
+    
     /**
      * 修改用户登录状态
      * @param int $user_id 用户id
@@ -241,5 +241,28 @@ class UserModel extends CI_Model {
         $this->db->where('id', $user_id);
         $result = $this->db->update($this->db_name, $data);
         return $result;
+    }
+    
+    /**
+     * 检查用户名是否存在
+     * @param int $user_id 用户id
+     * @param int $change 状态
+     * @return array
+     */
+    function verifyAccount($account) {
+        $account = $this->db->escape_str($account);
+        
+        if(empty($account)){
+            return false;
+        }
+        
+        $this->db->where('account', $account);
+        $result = $this->db->get($this->db_name);
+        
+        if($result->current_row > 0){
+            return true;
+        }else{
+            return false;
+        }
     }
 }
