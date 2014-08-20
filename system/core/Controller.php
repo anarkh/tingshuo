@@ -57,6 +57,16 @@ class CI_Controller {
 	{
 		return self::$instance;
 	}
+        
+        public function error($status, $msg){
+            $result = array(
+                'status' => $status,
+                'msg' => $msg
+            );
+            $resultJson = json_encode($result);
+            echo $resultJson;
+            exit;
+        }
 }
 // END Controller class
 

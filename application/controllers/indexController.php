@@ -19,4 +19,8 @@ class IndexController extends CI_Controller{
 	{
 		$this->load->view('index/index');
 	}
+        public function login()
+	{
+		$this->load->view('index/login');
+	}
 }

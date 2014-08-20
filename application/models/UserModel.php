@@ -134,16 +134,15 @@ class UserModel extends CI_Model {
         $this->db->where('account', $data['account']);
         $this->db->where('password', $data['password']);
         $query = $this->db->get($this->db_name);
-        
-        if(empty($query['id'])){
-           return false; 
+        $user = $query->row_array();
+        if(empty($user)){
+           return false;
         }
-        unset($data['account']);
-        unset($data['password']);
-        $data['login_time'] = time();
-        $this->db->where('id', $query['id']);
-        $result = $this->db->update($this->db_name, $data);
-        return $result;
+        $updata['login_time'] = time();
+        $updata['status'] = 1;
+        $this->db->where('id', $user['id']);
+        $result = $this->db->update($this->db_name, $updata);
+        return $user;
     }
     /**
      * 开通关闭vip
