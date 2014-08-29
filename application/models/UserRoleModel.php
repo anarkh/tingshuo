@@ -2,10 +2,10 @@
 
 /**
  * Project:     听说
- * File:        CommentModel.php
+ * File:        UserRoleModel.php
  *
  * <pre>
- * 描述：ts_comment评论表模型类
+ * 描述：ts_user_role用户角色表模型类
  * </pre>
  *
  * @package application
@@ -13,7 +13,7 @@
  * @author 李晨阳 <710809606@qq.com.com>
  * @copyright 2014 tingshuo, Inc.
  */
-class CommentModel extends CI_Model {
+class UserRoleModel extends CI_Model {
 
     /**
      * 数据库表名
@@ -23,7 +23,7 @@ class CommentModel extends CI_Model {
     protected static $db_name;
     
     function __construct() {
-        $this->db_name = 'user';
+        $this->db_name = 'user_role';
         parent::__construct();
     }
     
@@ -46,20 +46,34 @@ class CommentModel extends CI_Model {
      * @return array
      */
     function insert($param) {
-        
-        if(is_array($param) && count($param) > 0){
-            foreach ($param as $key => $value) {
-                $data[$key] = $this->db->escape_str($value);
-            }
-        }
-        
-        if(empty($data['post_id']) || empty($data['user_id']) || empty($data['nickname']) || empty($data['content'])){
+        if(empty($param['role']) || empty($param['user_id'])){
             return false;
         }
         
-        $data['time'] = empty($data['time'])? time(): $data['time'];
+        $roleArr = explode(',', $param['user_id']);
         
-        $result = $this->db->insert($this->db_name, $data);
+        if(is_array($roleArr) && count($roleArr) > 0){
+            foreach ($roleArr as $key => $value) {
+                $roleArr[$key] = $this->db->escape_str($value);
+            }
+        }
+        $param['user_id'] = $this->db->escape_str($param['user_id']);
+        if(count($roleArr) > 1){
+            foreach ($roleArr as $key => $value) {
+                $data[] = array(
+                    'user_id' => $param['user_id'],
+                    'role' => $value
+                ); 
+            }
+            $result = $this->db->insert_batch($this->db_name, $data);
+        }else{
+            $data = array(
+                'user_id' => $param['user_id'],
+                'role' => $roleArr[0] 
+            ); 
+            $result = $this->db->insert($this->db_name, $data);
+        }
+        
         return $result;
     }
     
@@ -70,23 +84,17 @@ class CommentModel extends CI_Model {
      */
     function updata($param) {
         
-        $post_id = intval($param['post_id']);
+        $role_id = intval($param['role_id']);
         $user_id = intval($param['user_id']);
-        unset($param['post_id']);
+        unset($param['role_id']);
         unset($param['user_id']);
-        if(is_array($param) && count($param) > 0){
-            foreach ($param as $key => $value) {
-                $data[$key] = $this->db->escape_str($value);
-            }
-        }
+        $data['role'] = $this->db->escape_str($param['role']);
         
-        if(empty($post_id) || empty($user_id) || empty($data['content'])){
+        if(empty($role_id) || empty($user_id) || empty($data['role'])){
             return false;
         }
         
-        $data['time'] = empty($data['time'])? time(): $data['time'];
-        
-        $this->db->where('post_id', $post_id);
+        $this->db->where('id', $role_id);
         $this->db->where('user_id', $user_id);
         $result = $this->db->update($this->db_name, $data);
         
@@ -100,14 +108,16 @@ class CommentModel extends CI_Model {
      * @param int $user_id 用户id
      * @return array
      */
-    function delete($role_id) {
-        $role_id = intval($role_id);
+    function delete($post_id, $user_id) {
+        $post_id = intval($post_id);
+        $user_id = intval($user_id);
         
-        if(empty($role_id)){
+        if(empty($post_id) || empty($user_id)){
             return false;
         }
         
-        $this->db->where('id', $role_id);
+        $this->db->where('post_id', $post_id);
+        $this->db->where('user_id', $user_id);
         $result = $this->db->delete($this->db_name);
         return $result;
     }
