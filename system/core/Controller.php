@@ -58,7 +58,7 @@ class CI_Controller {
 		return self::$instance;
 	}
         
-        public function error($status, $msg){
+        public static function error($status, $msg){
             $result = array(
                 'status' => $status,
                 'msg' => $msg
