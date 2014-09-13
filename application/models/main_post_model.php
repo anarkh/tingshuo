@@ -2,7 +2,7 @@
 
 /**
  * Project:     听说
- * File:        FaTieModel.php
+ * File:        Main_post_model.php
  *
  * <pre>
  * 描述：ts_comment评论表模型类
@@ -13,7 +13,7 @@
  * @author 李杨
  * @copyright 2014 tingshuo, Inc.
  */
-class MainPostModel extends CI_Model {
+class Main_post_model extends CI_Model {
 
     /**
      * 数据库表名
