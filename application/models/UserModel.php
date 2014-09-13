@@ -72,7 +72,11 @@ class UserModel extends CI_Model {
 
         $result = $this->db->insert($this->db_name, $data);
         if($result){
-            return $this->db->insert_id();
+            $arr['id'] = $this->db->insert_id();
+            $this->db->where($arr);
+            $query = $this->db->get($this->db_name);
+            $result = $query->result();
+            return $result[0];
         }else{
             return false;
         }

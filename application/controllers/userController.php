@@ -39,7 +39,7 @@ class UserController extends CI_Controller{
         $data = $this->UserModel->insert($param);
         if($data){
             try{
-                $role['user_id'] = intval($data);
+                $role['user_id'] = intval($data->id);
                 $role['role_id'] = intval($param['role_id']);
             } catch (Exception $ex) {
                 $this->load->model('UserRoleModel');
