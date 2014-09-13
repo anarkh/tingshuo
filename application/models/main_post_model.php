@@ -33,11 +33,20 @@ class Main_post_model extends CI_Model {
      * @param int $start 开始字段
      * @return array
      */
-    function select($limit = 10, $start = 0) {
-        $limit = intval($limit) ? intval($limit) : 10;
-        $start = intval($start) ? intval($start) : 0;
-        $query = $this->db->get($this->db_name, $limit, $start);
-        return $query;
+    function select($param) {
+        $limit = empty($param['limit']) ? 10 : intval($param['limit']);
+        $start = empty($param['start']) ? 0 : intval($param['start']);
+        if($start > 0){
+            $this->db->where('id <', $start);
+        }
+        $this->db->order_by("id", "desc");
+        $query = $this->db->get($this->db_name, $limit);
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
+            return array_reverse($result);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -46,7 +55,7 @@ class Main_post_model extends CI_Model {
      * @return array
      */
     function insert($param) {
-        $main_arr = array('user_id', 'neckname', 'head', 'role', 'content', 'comment_count', 'zan_count', 'cai_count', 'image', 'location', 'geo', 'longitude', 'latitude');
+        $main_arr = array('user_id', 'nickname', 'head', 'role_id', 'content', 'image', 'location', 'geo', 'longitude', 'latitude');
         if (is_array($param) && count($param) > 0) {
             foreach ($param as $key => $value) {
                 if(in_array($key, $main_arr)){
@@ -57,6 +66,7 @@ class Main_post_model extends CI_Model {
         if (empty($data['content']) || empty($data['role_id'])) {
             return false;
         }
+        $data['time'] = time();
         $result = $this->db->insert($this->db_name, $data);
         if($result){
             return $this->db->insert_id();
@@ -72,38 +82,41 @@ class Main_post_model extends CI_Model {
      */
     function updata($param) {
 
-        $upArr = array('nickname', 'head', 'sex', 'brithday', 'phonenum', 'city', 'token', 'imei');
-        $user_id = $param['id'];
-        if (is_array($param) && count($param) > 0) {
-            foreach ($param as $key => $value) {
-                $data[$key] = $this->db->escape_str($value);
-            }
-        }
-
-        if (empty($user_id)) {
+        if (empty($param['id']) || empty($param['user_id']) || empty($param['content'])) {
             return false;
         }
-
-        $this->db->where('id', $user_id);
+        
+        $upArr = array('nickname', 'head', 'content', 'image', 'location', 'geo', 'longitude', 'latitude');
+        $id = $param['id'];
+        $user_id = $param['user_id'];
+        
+        if (is_array($param) && count($param) > 0) {
+            foreach ($param as $key => $value) {
+                if(in_array($key, $upArr)){
+                    $data[$key] = $this->db->escape_str($value);
+                }
+            }
+        }
+        $this->db->where('id', $id);
+        $this->db->where('user_id', $user_id);
         $result = $this->db->update($this->db_name, $data);
-
         return $result;
     }
 
     /**
      * 基本删除语句
-     * @param int $post_id 二级帖子id
+     * @param int $id 帖子id
      * @param int $user_id 用户id
      * @return array
      */
-    function delete($user_id) {
-        $user_id = intval($user_id);
+    function delete($param) {
 
-        if (empty($user_id)) {
+        if (empty($param['id']) || empty($param['user_id'])) {
             return false;
         }
 
-        $this->db->where('id', $user_id);
+        $this->db->where('id', $param['id']);
+        $this->db->where('user_id', $param['user_id']);
         $result = $this->db->delete($this->db_name);
         return $result;
     }

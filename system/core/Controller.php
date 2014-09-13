@@ -30,7 +30,7 @@
 class CI_Controller {
 
 	private static $instance;
-
+        
 	/**
 	 * Constructor
 	 */
@@ -49,7 +49,7 @@ class CI_Controller {
 		$this->load =& load_class('Loader', 'core');
 
 		$this->load->initialize();
-		
+                
 		log_message('debug', "Controller Class Initialized");
 	}
 
@@ -66,6 +66,23 @@ class CI_Controller {
             $resultJson = json_encode($result);
             echo $resultJson;
             exit;
+        }
+        
+        public static function getUserId(){
+            $token = self::$instance->input->get_post('token', TRUE);
+            if (empty($token)) {
+                header("http/1.1 403 Forbidden");
+                exit;
+            }else{
+                self::$instance->load->model('User_model');
+                $data = self::$instance->User_model->getUserIdByToken($token);
+                if($data){
+                    return $data;
+                }else{
+                    header("http/1.1 403 Forbidden");
+                    exit;
+                }
+            }
         }
 }
 // END Controller class

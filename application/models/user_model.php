@@ -289,9 +289,8 @@ class User_model extends CI_Model {
 
         $this->db->where('token', $token);
         $query = $this->db->get($this->db_name);
-
-        if ($query->current_row > 0) {
-            $result = $query->result();
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
             return $result[0];
         } else {
             return false;
