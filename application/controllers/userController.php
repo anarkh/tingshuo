@@ -26,7 +26,7 @@ class UserController extends CI_Controller{
         
         $param['account'] = $this->uuid();
         $param['password'] = $this->uuid();
-        $param['nickname'] = '你猜我是谁';
+        $param['nickname'] = $this->nicknameRand();
         $this->load->model('UserModel');
         $i = 0;
         while($this->UserModel->verifyAccount($param['account'])){
@@ -41,9 +41,9 @@ class UserController extends CI_Controller{
             try{
                 $role['user_id'] = intval($data->id);
                 $role['role_id'] = intval($param['role_id']);
-            } catch (Exception $ex) {
                 $this->load->model('UserRoleModel');
-                $this->UserRoleModel->verifyAccount($role);
+                $this->UserRoleModel->insert($role);
+            } catch (Exception $ex) {
             }
             $result = array(
                 'status' => 100,
@@ -56,6 +56,21 @@ class UserController extends CI_Controller{
         }else{
             $this->error(103, '注册失败');
         }
+    }
+    //自动生成用户名
+    public function nicknameRand(){
+        $num = rand(1,1000000);
+        $sex = $this->input->get_post('sex', TRUE);
+        $role_id = $this->input->get_post('role_id', TRUE);
+        $this->load->model('RoleModel');
+        $queryname = $this->RoleModel->selectRoleByRoleId($role_id);
+        $nickname = $queryname->role;
+        if ($sex == 0 ){
+            $nickname = $nickname . '女' . $num;
+        } else if ($sex == 1) {
+            $nickname = $nickname . '男' . $num;
+        }
+            return $nickname;
     }
     //注册
     public function register() {

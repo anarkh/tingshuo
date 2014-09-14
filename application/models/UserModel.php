@@ -268,12 +268,12 @@ class UserModel extends CI_Model {
 
         $this->db->where('account', $account);
         $result = $this->db->get($this->db_name);
-
+        
         if ($result->current_row > 0) {
             return true;
         } else {
             return false;
         }
     }
-
+    
 }

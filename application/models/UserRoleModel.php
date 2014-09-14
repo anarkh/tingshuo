@@ -121,5 +121,5 @@ class UserRoleModel extends CI_Model {
         $result = $this->db->delete($this->db_name);
         return $result;
     }
-    
+   
 }
