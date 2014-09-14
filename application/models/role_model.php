@@ -2,10 +2,10 @@
 
 /**
  * Project:     听说
- * File:        UserRoleModel.php
+ * File:        Role_model.php
  *
  * <pre>
- * 描述：ts_user_role用户角色表模型类
+ * 描述：ts_role角色表模型类
  * </pre>
  *
  * @package application
@@ -13,7 +13,7 @@
  * @author 李晨阳 <710809606@qq.com.com>
  * @copyright 2014 tingshuo, Inc.
  */
-class UserRoleModel extends CI_Model {
+class Role_model extends CI_Model {
 
     /**
      * 数据库表名
@@ -23,7 +23,7 @@ class UserRoleModel extends CI_Model {
     protected static $db_name;
     
     function __construct() {
-        $this->db_name = 'user_role';
+        $this->db_name = 'role';
         parent::__construct();
     }
     
@@ -46,11 +46,11 @@ class UserRoleModel extends CI_Model {
      * @return array
      */
     function insert($param) {
-        if(empty($param['role_id']) || empty($param['user_id'])){
+        if(empty($param['role'])){
             return false;
         }
         
-        $roleArr = explode(',', $param['role_id']);
+        $roleArr = explode(',', $param['role']);
         
         if(is_array($roleArr) && count($roleArr) > 0){
             foreach ($roleArr as $key => $value) {
@@ -121,5 +121,18 @@ class UserRoleModel extends CI_Model {
         $result = $this->db->delete($this->db_name);
         return $result;
     }
-   
+    
+     /**
+     * 通过角色ID取出角色名称
+     * @param int 角色id
+     * @return array
+     */
+    function selectRoleByRoleId($id) {
+        $id = intval($id);
+        $this->db->where('id',$id);
+        $query = $this->db->get($this->db_name);
+        $result = $query->result()[0];
+        return $result;
+    }
+    
 }

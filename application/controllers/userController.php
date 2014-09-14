@@ -27,22 +27,22 @@ class UserController extends CI_Controller{
         $param['account'] = $this->uuid();
         $param['password'] = $this->uuid();
         $param['nickname'] = $this->nicknameRand();
-        $this->load->model('UserModel');
+        $this->load->model('User_model');
         $i = 0;
-        while($this->UserModel->verifyAccount($param['account'])){
+        while($this->User_model->verifyAccount($param['account'])){
             $param['account'] = $this->uuid();
             $i++;
             if($i>5){
                 $this->error(104, '系统繁忙，请稍后再试');
             }
         }
-        $data = $this->UserModel->insert($param);
+        $data = $this->User_model->insert($param);
         if($data){
             try{
                 $role['user_id'] = intval($data->id);
                 $role['role_id'] = intval($param['role_id']);
-                $this->load->model('UserRoleModel');
-                $this->UserRoleModel->insert($role);
+                $this->load->model('User_role_model');
+                $this->User_role_model->insert($role);
             } catch (Exception $ex) {
             }
             $result = array(
@@ -89,11 +89,11 @@ class UserController extends CI_Controller{
         if(empty($param['account']) || empty($param['password']) || empty($param['nickname'])){
             $this->error(101, '请填写账号，密码和昵称');
         }
-        $this->load->model('UserModel');
-        if(!$this->UserModel->verifyAccount($param['account'])){
+        $this->load->model('User_model');
+        if(!$this->User_model->verifyAccount($param['account'])){
             $this->error(102, '账号已经存在');
         }
-        $data = $this->UserModel->insert($param);
+        $data = $this->User_model->insert($param);
         $result = array(
             'status' => 100,
             'msg' => '注册成功'
@@ -111,8 +111,8 @@ class UserController extends CI_Controller{
             $this->error(101, '请填写账号，密码');
         }
         $param['password'] = md5($param['password']);
-        $this->load->model('UserModel');
-        $data = $this->UserModel->login($param);
+        $this->load->model('User_model');
+        $data = $this->User_model->login($param);
         if($data){
             $result = array(
                 'status' => 100,
@@ -136,8 +136,8 @@ class UserController extends CI_Controller{
             $this->error(101, '请填写用户id，角色');
         }
         
-        $this->load->model('UserRoleModel');
-        $data = $this->UserModel->insert($param);
+        $this->load->model('User_role_model');
+        $data = $this->User_role_model->insert($param);
         if($data){
             $result = array(
                 'status' => 100,

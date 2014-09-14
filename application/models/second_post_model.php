@@ -2,10 +2,10 @@
 
 /**
  * Project:     听说
- * File:        UserModel.php
+ * File:        Second_post_model.php
  *
  * <pre>
- * 描述：ts_comment评论表模型类
+ * 描述：ts_second_post评论表模型类
  * </pre>
  *
  * @package application
@@ -13,7 +13,7 @@
  * @author 李晨阳 <710809606@qq.com.com>
  * @copyright 2014 tingshuo, Inc.
  */
-class UserModel extends CI_Model {
+class Second_post_model extends CI_Model {
 
     /**
      * 数据库表名
@@ -23,7 +23,7 @@ class UserModel extends CI_Model {
     protected static $db_name;
 
     function __construct() {
-        $this->db_name = 'user';
+        $this->db_name = 'second_post';
         parent::__construct();
     }
 
