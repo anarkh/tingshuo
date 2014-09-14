@@ -120,4 +120,42 @@ class Main_post_model extends CI_Model {
         $result = $this->db->delete($this->db_name);
         return $result;
     }
+        
+    /**
+     * 赞语句
+     * @param int $id 帖子id
+     * @param int $user_id 用户id
+     * @return array
+     */
+    function zan($param) {
+        if (empty($param['id']) || empty($param['user_id'])) {
+            return false;
+        }
+        $id = intval($param['id']);
+        $sql = "UPDATE `ts_".$this->db_name."` SET `zan_count` = zan_count+1 WHERE `id` =  '".$id."'";
+        $this->db->query($sql);
+        if($this->db->affected_rows()){
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * 赞语句
+     * @param int $id 帖子id
+     * @param int $user_id 用户id
+     * @return array
+     */
+    function cancelzan($param) {
+        if (empty($param['id']) || empty($param['user_id'])) {
+            return false;
+        }
+        $id = intval($param['id']);
+        $sql = "UPDATE `ts_".$this->db_name."` SET `zan_count` = zan_count-1 WHERE `id` =  '".$id."'";
+        $this->db->query($sql);
+        if($this->db->affected_rows()){
+            return true;
+        }
+        return false;
+    }
 }
