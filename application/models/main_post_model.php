@@ -69,7 +69,17 @@ class Main_post_model extends CI_Model {
         $data['time'] = time();
         $result = $this->db->insert($this->db_name, $data);
         if($result){
-            return $this->db->insert_id();
+            $arr['id'] = $this->db->insert_id();
+            $this->db->where($arr);
+            $query = $this->db->get($this->db_name);
+            $result = $query->result();
+            if(is_array($result) && !empty($result)) {
+                if(count($result) == 1) {
+                    return $result[0];
+                } else {
+                    return FALSE;
+                }
+            }
         }else{
             return false;
         }

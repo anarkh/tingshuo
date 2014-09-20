@@ -63,7 +63,7 @@ class CI_Controller {
                 'status' => $status,
                 'msg' => $msg
             );
-            $resultJson = json_encode($result);
+            $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
             echo $resultJson;
             exit;
         }

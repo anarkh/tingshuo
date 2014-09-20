@@ -17,19 +17,42 @@
 class MainpostController extends CI_Controller{
     //发布信息
     public function fatie() {
-        $userArr = $this->getUserId();
+        $config['upload_path'] = 'F:/upload/';
+        $config['allowed_types'] = 'jpg|png|gif|jpeg';
+        $config['max_size'] = '0';
+        $config['max_width'] = '0';
+        $config['max_height'] = '0';
+        $config['encrypt_name'] = TRUE;
+
+        $this->load->library('upload', $config);
+        $image = '';
+        for($i = 0;$i < 9;$i++) {
+            if($this->upload->do_upload("image".$i)) {
+                if(0 != $i) {
+                    $image .= ',';
+                }
+                $data = $this->upload->data();
+                $image .= $data['file_name'];
+            }
+        }
+        log_message('debug','image_name:'.$image);
+        //$userArr = $this->getUserId();
         $param['content'] = $this->input->get_post('content', TRUE);
         $param['role_id'] = $this->input->get_post('role_id', TRUE);
-        if (empty($param['content'])) {
+        log_message('debug','role_id:'.$param['role_id']);
+        if (!isset($param['content'])) {
             $this->error(101, '发布内容不能为空');
         }
-        if (empty($param['role_id'])) {
+        if (!isset($param['role_id'])) {
             $this->error(102, '角色id不能为空');
         }
-        $param['user_id'] = $userArr['id'];
-        $param['nickname'] = $userArr['nickname'];
-        $param['head'] = $userArr['head'];
-        $param['image'] = $this->input->get_post('image', TRUE);
+//        $param['user_id'] = $userArr['id'];
+//        $param['nickname'] = $userArr['nickname'];
+//        $param['head'] = $userArr['head'];
+        $param['user_id'] = 1;
+        $param['nickname'] = '你是逗比吗';
+        $param['head'] = 'jdfiesif';
+        $param['image'] = $image;
         $param['longitude'] = $this->input->get_post('longitude', TRUE);
         $param['latitude'] = $this->input->get_post('latitude', TRUE);
         
@@ -38,9 +61,11 @@ class MainpostController extends CI_Controller{
         if($data){
             $result = array(
                 'status' => 100,
-                'msg' => '发帖成功'
+                'msg' => '发帖成功',
+                'data' => $data
             );
-            $resultJson = json_encode($result);
+            $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
+            log_message('debug',$resultJson);
             echo $resultJson;
             exit;
         }else{
@@ -60,7 +85,7 @@ class MainpostController extends CI_Controller{
                 'msg' => '发帖成功',
                 'data' => $data
             );
-            $resultJson = json_encode($result);
+            $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
             echo $resultJson;
             exit;
         }else{
@@ -165,4 +190,27 @@ class MainpostController extends CI_Controller{
             $this->error(103, '取消赞失败');
         }
     }
+    
+    public function upload() {
+        $config['upload_path'] = 'F:/upload/';
+        $config['allowed_types'] = 'gif|jpg|png';
+        $config['max_size'] = '0';
+        $config['max_width'] = '0';
+        $config['max_height'] = '0';
+        $config['encrypt_name'] = TRUE;
+
+        $this->load->library('upload', $config);
+        var_dump($this->upload->do_upload("file0"));
+//        
+//        if ($_FILES["file0"]["error"] > 0) {
+//            echo "Error: " . $_FILES["file"]["error"] . "<br />";
+//        } else {
+//            echo "Upload: " . $_FILES["file"]["name"] . "<br />";
+//            echo "Type: " . $_FILES["file"]["type"] . "<br />";
+//            echo "Size: " . ($_FILES["file"]["size"] / 1024) . " Kb<br />";
+//            echo "Stored in: " . $_FILES["file"]["tmp_name"];
+//        }
+//        move_uploaded_file($_FILES["file"]["tmp_name"], "F:/upload/" . $_FILES["file"]["name"]);
+    }
+
 }
