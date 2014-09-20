@@ -62,8 +62,8 @@ class UserController extends CI_Controller{
         $num = rand(1,1000000);
         $sex = $this->input->get_post('sex', TRUE);
         $role_id = $this->input->get_post('role_id', TRUE);
-        $this->load->model('RoleModel');
-        $queryname = $this->RoleModel->selectRoleByRoleId($role_id);
+        $this->load->model('Role_model');
+        $queryname = $this->Role_model->selectRoleByRoleId($role_id);
         $nickname = $queryname->role;
         if ($sex == 0 ){
             $nickname = $nickname . '女' . $num;
