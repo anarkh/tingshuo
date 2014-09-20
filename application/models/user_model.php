@@ -137,10 +137,10 @@ class User_model extends CI_Model {
             }
         }
 
-        if (empty($data['account']) || empty($data['password'])) {
+        if (empty($data['account']) || empty($data['password']) || empty($data['token'])) {
             return false;
         }
-
+        
         $this->db->where('account', $data['account']);
         $this->db->where('password', $data['password']);
         $query = $this->db->get($this->db_name);
@@ -150,8 +150,9 @@ class User_model extends CI_Model {
         }
         $updata['login_time'] = time();
         $updata['status'] = 1;
+        $updata['token'] = $data['token'];
         $this->db->where('id', $user['id']);
-        $result = $this->db->update($this->db_name, $updata);
+        $this->db->update($this->db_name, $updata);
         return $user;
     }
 

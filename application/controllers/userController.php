@@ -50,6 +50,7 @@ class UserController extends CI_Controller{
                 'msg' => '注册成功',
                 'data' => $data
             );
+            $this->login();
             $resultJson = json_encode($result);
             echo $resultJson;
             exit;
@@ -107,6 +108,7 @@ class UserController extends CI_Controller{
     public function login() {
         $param['account'] = $this->input->get_post('account', TRUE);
         $param['password'] = $this->input->get_post('password', TRUE);
+        $param['token'] = $this->genToken();
         if(empty($param['account']) || empty($param['password'])){
             $this->error(101, '请填写账号，密码');
         }
@@ -156,4 +158,32 @@ class UserController extends CI_Controller{
         $charid = strtoupper(md5(uniqid(rand(), true)));
         return $charid;
     }
+    //生成token
+    public function genToken( $len = 32, $md5 = true ) {  
+          mt_srand( (double)microtime()*1000000 );
+          $chars = array(  
+              'Q', '@', '8', 'y', '%', '^', '5', 'Z', '(', 'G', '_', 'O', '`',  
+              'S', '-', 'N', '<', 'D', '{', '}', '[', ']', 'h', ';', 'W', '.',  
+              '/', '|', ':', '1', 'E', 'L', '4', '&', '6', '7', '#', '9', 'a',  
+              'A', 'b', 'B', '~', 'C', 'd', '>', 'e', '2', 'f', 'P', 'g', ')',  
+              '?', 'H', 'i', 'X', 'U', 'J', 'k', 'r', 'l', '3', 't', 'M', 'n',  
+              '=', 'o', '+', 'p', 'F', 'q', '!', 'K', 'R', 's', 'c', 'm', 'T',  
+              'v', 'j', 'u', 'V', 'w', ',', 'x', 'I', '$', 'Y', 'z', '*'  
+          );
+          $numChars = count($chars) - 1; 
+          $token = ''; 
+          for ( $i=0; $i<$len; $i++ )  
+              $token .= $chars[ mt_rand(0, $numChars) ];  
+          if ( $md5 ) { 
+              $chunks = ceil( strlen($token) / 32 ); 
+              $md5token = '';  
+              for ( $i=1; $i<=$chunks; $i++ )  
+                  $md5token .= md5( substr($token, $i * 32 - 32, 32) ); 
+              $token = substr($md5token, 0, $len);  
+          } 
+          return $token;  
+      }
+      public function test(){
+          echo $this-> genToken();
+      }
 }
