@@ -152,8 +152,15 @@ class User_model extends CI_Model {
         $updata['status'] = 1;
         $updata['token'] = $data['token'];
         $this->db->where('id', $user['id']);
-        $this->db->update($this->db_name, $updata);
-        return $user;
+        $tag = $this->db->update($this->db_name, $updata);
+        if ($tag) {
+            $user['account'] = "";
+            $user['password'] = "";
+            $user['token'] = $updata['token'];
+            return $user;
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -281,7 +288,7 @@ class User_model extends CI_Model {
      * @param int $token 状态
      * @return array
      */
-    function getUserIdByToken($token) {
+    function getUserInfoByToken($token) {
         $token = $this->db->escape_str($token);
 
         if (empty($token)) {

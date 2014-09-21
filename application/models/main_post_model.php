@@ -34,8 +34,8 @@ class Main_post_model extends CI_Model {
      * @return array
      */
     function select($param) {
-        $limit = empty($param['limit']) ? 10 : intval($param['limit']);
-        $start = empty($param['start']) ? 0 : intval($param['start']);
+        $limit = !isset($param['limit']) ? 10 : intval($param['limit']);
+        $start = !isset($param['start']) ? 0 : intval($param['start']);
         if($start > 0){
             $this->db->where('id <', $start);
         }
@@ -67,6 +67,7 @@ class Main_post_model extends CI_Model {
             return false;
         }
         $data['time'] = time();
+        
         $result = $this->db->insert($this->db_name, $data);
         if($result){
             $arr['id'] = $this->db->insert_id();

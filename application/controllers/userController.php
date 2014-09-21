@@ -25,7 +25,7 @@ class UserController extends CI_Controller{
         $param['role_id'] = $this->input->get_post('role_id', TRUE);
         
         $param['account'] = $this->uuid();
-        $param['password'] = $this->uuid();
+        $param['password'] = md5($this->uuid());
         $param['nickname'] = $this->nicknameRand();
         $this->load->model('User_model');
         $i = 0;
@@ -45,12 +45,16 @@ class UserController extends CI_Controller{
                 $this->User_role_model->insert($role);
             } catch (Exception $ex) {
             }
+            $param['token'] = $this->genToken();
+            $this->load->model('User_model');
+            $data = $this->User_model->login($param);
+            
             $result = array(
                 'status' => 100,
                 'msg' => '注册成功',
                 'data' => $data
             );
-            $this->login();
+            
             $resultJson = json_encode($result);
             echo $resultJson;
             exit;
@@ -67,9 +71,9 @@ class UserController extends CI_Controller{
         $queryname = $this->Role_model->selectRoleByRoleId($role_id);
         $nickname = $queryname->role;
         if ($sex == 0 ){
-            $nickname = $nickname . '女' . $num;
+            $nickname = '女' . $nickname . $num;
         } else if ($sex == 1) {
-            $nickname = $nickname . '男' . $num;
+            $nickname = '男' . $nickname . $num;
         }
             return $nickname;
     }
@@ -105,14 +109,14 @@ class UserController extends CI_Controller{
     }
     
     //登录
-    public function login() {
-        $param['account'] = $this->input->get_post('account', TRUE);
-        $param['password'] = $this->input->get_post('password', TRUE);
+    public function login($account, $password) {
+        $param['account'] = $account;
+        $param['password'] = $password;
         $param['token'] = $this->genToken();
         if(empty($param['account']) || empty($param['password'])){
-            $this->error(101, '请填写账号，密码');
+           $this->error(101, '请填写账号，密码');
         }
-        $param['password'] = md5($param['password']);
+        //$param['password'] = md5($param['password']);
         $this->load->model('User_model');
         $data = $this->User_model->login($param);
         if($data){
@@ -182,8 +186,5 @@ class UserController extends CI_Controller{
               $token = substr($md5token, 0, $len);  
           } 
           return $token;  
-      }
-      public function test(){
-          echo $this-> genToken();
       }
 }
