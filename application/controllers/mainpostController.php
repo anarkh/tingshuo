@@ -20,14 +20,10 @@ class MainpostController extends CI_Controller{
         $param['content'] = $this->input->get_post('content', TRUE);
         $param['role_id'] = $this->input->get_post('role_id', TRUE);
         $param['token'] = $this->input->get_post('token', TRUE);
-        $config['upload_path'] = 'F:/upload/';
-        $config['allowed_types'] = 'jpg|png|gif|jpeg';
-        $config['max_size'] = '0';
-        $config['max_width'] = '0';
-        $config['max_height'] = '0';
-        $config['encrypt_name'] = TRUE;
+        $this->config->load('image_settings', TRUE);
+        $image_settings = $this->config->item('image_settings');
 
-        $this->load->library('upload', $config);
+        $this->load->library('upload', $image_settings);
         $image = '';
         for($i = 0;$i < 9;$i++) {
             if($this->upload->do_upload("image".$i)) {
@@ -36,6 +32,16 @@ class MainpostController extends CI_Controller{
                 }
                 $data = $this->upload->data();
                 $image .= $data['file_name'];
+                $this->config->load('thumb_settings', TRUE);
+                $thumb_settings = $this->config->item('thumb_settings');
+                $thumb_settings['source_image'] = $image_settings['upload_path'].$data['file_name'];
+                $thumb_settings['new_image'] = $thumb_settings['thumb_path'].$data['file_name'];
+
+                $this->load->library('image_lib');
+                $this->image_lib->initialize($thumb_settings);
+                if (!$this->image_lib->resize()) {
+                    log_message('error',$this->image_lib->display_errors());
+                }
             }
         }
         log_message('debug','image_name:'.$image);
