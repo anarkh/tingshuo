@@ -107,8 +107,11 @@ class Second_post_model extends CI_Model {
         $this->db->where('id', $second_id);
         $this->db->where('user_id', $user_id);
         $result = $this->db->update($this->db_name, $data);
-
-        return $result;
+        if($result && $this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**

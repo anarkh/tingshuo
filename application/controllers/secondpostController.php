@@ -16,7 +16,7 @@
 
 class SecondpostController extends CI_Controller{
     //发布信息
-    public function publish() {
+    public function reply() {
         $userArr = $this->getUserInfo();
         $param['content'] = $this->input->get_post('content', TRUE);
         $param['post_id'] = $this->input->get_post('post_id', TRUE);
@@ -61,7 +61,7 @@ class SecondpostController extends CI_Controller{
         $page = empty($param['page']) ? 0 : $param['page'];
         $start = empty($param['start']) ? ($page * $limit) : $param['start'];
         $param['post_id'] = $this->input->get_post('post_id', TRUE);
-        if (!isset($param['post_id'])) {
+        if (empty($param['post_id'])) {
             $this->error(101, '主题不能为空');
         }
         $this->load->model('Second_post_model');
@@ -95,7 +95,6 @@ class SecondpostController extends CI_Controller{
         $param['head'] = $userArr['head'];
         $this->load->model('Second_post_model');
         $data = $this->Second_post_model->updata($param);
-        
         if($data){
             $result = array(
                 'status' => 100,
