@@ -21,7 +21,6 @@ class SecondpostController extends CI_Controller{
         $param['content'] = $this->input->get_post('content', TRUE);
         $param['post_id'] = $this->input->get_post('post_id', TRUE);
         $param['role_id'] = $this->input->get_post('role_id', TRUE);
-        $param['token'] = $this->input->get_post('token', TRUE);
         
         log_message('debug','role_id:'.$param['role_id']);
         if (!isset($param['content'])) {
