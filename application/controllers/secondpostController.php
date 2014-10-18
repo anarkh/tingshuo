@@ -2,10 +2,10 @@
 
 /**
  * Project:     听说
- * File:        MainpostController.php
+ * File:        SecondpostController.php
  *
  * <pre>
- * 描述：主贴类
+ * 描述：回帖类
  * </pre>
  *
  * @package application
@@ -14,38 +14,15 @@
  * @copyright 2014 tingshuo, Inc.
  */
 
-class MainpostController extends CI_Controller{
+class SecondpostController extends CI_Controller{
     //发布信息
-    public function fatie() {
+    public function publish() {
         $userArr = $this->getUserInfo();
         $param['content'] = $this->input->get_post('content', TRUE);
+        $param['post_id'] = $this->input->get_post('post_id', TRUE);
         $param['role_id'] = $this->input->get_post('role_id', TRUE);
         $param['token'] = $this->input->get_post('token', TRUE);
-        $this->config->load('image_settings', TRUE);
-        $image_settings = $this->config->item('image_settings');
-
-        $this->load->library('upload', $image_settings);
-        $image = '';
-        for($i = 0;$i < 9;$i++) {
-            if($this->upload->do_upload("image".$i)) {
-                if(0 != $i) {
-                    $image .= ',';
-                }
-                $data = $this->upload->data();
-                $image .= $data['file_name'];
-                $this->config->load('thumb_settings', TRUE);
-                $thumb_settings = $this->config->item('thumb_settings');
-                $thumb_settings['source_image'] = $image_settings['upload_path'].$data['file_name'];
-                $thumb_settings['new_image'] = $thumb_settings['thumb_path'].$data['file_name'];
-
-                $this->load->library('image_lib');
-                $this->image_lib->initialize($thumb_settings);
-                if (!$this->image_lib->resize()) {
-                    log_message('error',$this->image_lib->display_errors());
-                }
-            }
-        }
-        log_message('debug','image_name:'.$image);
+        
         log_message('debug','role_id:'.$param['role_id']);
         if (!isset($param['content'])) {
             $this->error(101, '发布内容不能为空');
@@ -56,16 +33,15 @@ class MainpostController extends CI_Controller{
         $param['user_id'] = $userArr['id'];
         $param['nickname'] = $userArr['nickname'];
         $param['head'] = $userArr['head'];
-        $param['image'] = $image;
         $param['longitude'] = $this->input->get_post('longitude', TRUE);
         $param['latitude'] = $this->input->get_post('latitude', TRUE);
         
-        $this->load->model('Main_post_model');
-        $data = $this->Main_post_model->insert($param);
+        $this->load->model('Second_post_model');
+        $data = $this->Second_post_model->insert($param);
         if($data){
             $result = array(
                 'status' => 100,
-                'msg' => '发帖成功',
+                'msg' => '回复成功',
                 'data' => $data
             );
             $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
@@ -73,20 +49,27 @@ class MainpostController extends CI_Controller{
             echo $resultJson;
             exit;
         }else{
-            $this->error(103, '发帖失败');
+            $this->error(103, '回复失败');
         }
     }
     
     //获取帖子
-    public function getpost() {
-        $param['limit'] = $this->input->get_post('page', TRUE);
-        $param['start'] = $this->input->get_post('min_id', TRUE);
-        $this->load->model('Main_post_model');
-        $data = $this->Main_post_model->select($param);
+    public function getsecond() {
+        $param['limit'] = $this->input->get_post('limit', TRUE);
+        $param['start'] = $this->input->get_post('start', TRUE);
+        $limit = empty($param['limit']) ? 10 : $param['limit'];
+        $page = empty($param['page']) ? 0 : $param['page'];
+        $start = empty($param['start']) ? ($page * $limit) : $param['start'];
+        $param['post_id'] = $this->input->get_post('post_id', TRUE);
+        if (!isset($param['post_id'])) {
+            $this->error(101, '主题不能为空');
+        }
+        $this->load->model('Second_post_model');
+        $data = $this->Second_post_model->select($param['post_id'], $limit, $start);
         if($data){
             $result = array(
                 'status' => 100,
-                'msg' => '发帖成功',
+                'msg' => '获取成功',
                 'data' => $data
             );
             $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
@@ -99,11 +82,10 @@ class MainpostController extends CI_Controller{
     //修改帖子
     public function changepost() {
         $userArr = $this->getUserInfo();
-        $param['id'] = $this->input->get_post('topic_id', TRUE);
+        $param['second_id'] = $this->input->get_post('second_id', TRUE);
         $param['content'] = $this->input->get_post('content', TRUE);
-        $param['image'] = $this->input->get_post('image', TRUE);
-        if (empty($param['id'])) {
-            $this->error(102, '帖子不存在');
+        if (empty($param['second_id'])) {
+            $this->error(102, '回复不存在');
         }
         if (empty($param['content'])) {
             $this->error(101, '发布内容不能为空');
@@ -111,8 +93,8 @@ class MainpostController extends CI_Controller{
         $param['user_id'] = $userArr['id'];
         $param['nickname'] = $userArr['nickname'];
         $param['head'] = $userArr['head'];
-        $this->load->model('Main_post_model');
-        $data = $this->Main_post_model->updata($param);
+        $this->load->model('Second_post_model');
+        $data = $this->Second_post_model->updata($param);
         
         if($data){
             $result = array(
@@ -128,15 +110,15 @@ class MainpostController extends CI_Controller{
     }
     
     //删除帖子
-    public function deletepost() {
+    public function deletesecond() {
         $userArr = $this->getUserInfo();
-        $param['id'] = $this->input->get_post('topic_id', TRUE);
-        if (empty($param['id'])) {
+        $param['second_id'] = $this->input->get_post('second_id', TRUE);
+        if (empty($param['second_id'])) {
             $this->error(102, '帖子不存在');
         }
         $param['user_id'] = $userArr['id'];
-        $this->load->model('Main_post_model');
-        $data = $this->Main_post_model->delete($param);
+        $this->load->model('Second_post_model');
+        $data = $this->Second_post_model->delete($param);
         
         if($data){
             $result = array(
@@ -153,13 +135,13 @@ class MainpostController extends CI_Controller{
     //赞
     public function zan() {
         $userArr = $this->getUserInfo();
-        $param['id'] = $this->input->get_post('topic_id', TRUE);
-        if (empty($param['id'])) {
-            $this->error(102, '帖子不存在');
+        $param['second_id'] = $this->input->get_post('second_id', TRUE);
+        if (empty($param['second_id'])) {
+            $this->error(102, '回复不存在');
         }
         $param['user_id'] = $userArr['id'];
-        $this->load->model('Main_post_model');
-        $data = $this->Main_post_model->zan($param);
+        $this->load->model('Second_post_model');
+        $data = $this->Second_post_model->zan($param);
         if($data){
             $result = array(
                 'status' => 100,
@@ -175,13 +157,13 @@ class MainpostController extends CI_Controller{
     //取消赞
     public function cancelzan() {
         $userArr = $this->getUserInfo();
-        $param['id'] = $this->input->get_post('topic_id', TRUE);
-        if (empty($param['id'])) {
+        $param['second_id'] = $this->input->get_post('second_id', TRUE);
+        if (empty($param['second_id'])) {
             $this->error(102, '帖子不存在');
         }
         $param['user_id'] = $userArr['id'];
-        $this->load->model('Main_post_model');
-        $data = $this->Main_post_model->cancelzan($param);
+        $this->load->model('Second_post_model');
+        $data = $this->Second_post_model->cancelzan($param);
         if($data){
             $result = array(
                 'status' => 100,

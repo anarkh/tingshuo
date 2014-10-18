@@ -68,14 +68,14 @@ class CI_Controller {
             exit;
         }
         
-        public static function getUserId(){
+        public static function getUserInfo(){
             $token = self::$instance->input->get_post('token', TRUE);
             if (empty($token)) {
                 header("http/1.1 403 Forbidden");
                 exit;
             }else{
                 self::$instance->load->model('User_model');
-                $data = self::$instance->User_model->getUserIdByToken($token);
+                $data = self::$instance->User_model->getUserInfoByToken($token);
                 if($data){
                     return $data;
                 }else{

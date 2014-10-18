@@ -33,11 +33,17 @@ class Second_post_model extends CI_Model {
      * @param int $start 开始字段
      * @return array
      */
-    function select($limit = 10, $start = 0) {
+    function select($post_id, $limit = 10, $start = 0) {
         $limit = intval($limit) ? intval($limit) : 10;
         $start = intval($start) ? intval($start) : 0;
+        $this->db->where('post_id', $post_id);
         $query = $this->db->get($this->db_name, $limit, $start);
-        return $query;
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
+            return array_reverse($result);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -46,7 +52,7 @@ class Second_post_model extends CI_Model {
      * @return array
      */
     function insert($param) {
-        $user_arr = array('account', 'password', 'nickname', 'head', 'sex', 'brithday', 'phonenum', 'friend_num', 'city', 'level_score', 'level', 'is_vip', 'vip_score', 'vip_level', 'register_time', 'login_time', 'access_type', 'access_token', 'access_time', 'longitude', 'latitude', 'geo', 'token', 'imei', 'status');
+        $user_arr = array('post_id', 'user_id', 'nickname', 'head', 'role_id', 'content', 'image', 'location', 'geo', 'longitude', 'latitude');
         if (is_array($param) && count($param) > 0) {
             foreach ($param as $key => $value) {
                 if(in_array($key, $user_arr)){
@@ -55,20 +61,11 @@ class Second_post_model extends CI_Model {
             }
         }
 
-        if (empty($data['account']) || empty($data['password']) || empty($data['nickname'])) {
+        if (empty($data['post_id']) || empty($data['user_id']) || empty($data['content'])) {
             return false;
         }
 
-        $data['sex'] = empty($data['sex']) ? 0 : intval($data['sex']);
-        $data['friend_num'] = empty($data['friend_num']) ? 0 : intval($data['friend_num']);
-        $data['level_score'] = 0;
-        $data['level'] = 0;
-        $data['is_vip'] = 0;
-        $data['vip_score'] = 0;
-        $data['vip_level'] = 0;
-        $data['register_time'] = time();
-        $data['login_time'] = time();
-        $data['status'] = 0;
+        $data['time'] = time();
 
         $result = $this->db->insert($this->db_name, $data);
         if($result){
@@ -88,12 +85,18 @@ class Second_post_model extends CI_Model {
      * @return array
      */
     function updata($param) {
-
-        $upArr = array('nickname', 'head', 'sex', 'brithday', 'phonenum', 'city', 'token', 'imei');
-        $user_id = $param['id'];
+        if (empty($param['second_id']) || empty($param['user_id']) || empty($param['content'])) {
+            return false;
+        }
+        
+        $upArr = array('nickname', 'head', 'content');
+        $second_id = $param['second_id'];
+        $user_id = $param['user_id'];
         if (is_array($param) && count($param) > 0) {
             foreach ($param as $key => $value) {
-                $data[$key] = $this->db->escape_str($value);
+                if(in_array($key, $upArr)){
+                    $data[$key] = $this->db->escape_str($value);
+                }
             }
         }
 
@@ -101,7 +104,8 @@ class Second_post_model extends CI_Model {
             return false;
         }
 
-        $this->db->where('id', $user_id);
+        $this->db->where('id', $second_id);
+        $this->db->where('user_id', $user_id);
         $result = $this->db->update($this->db_name, $data);
 
         return $result;
@@ -113,167 +117,53 @@ class Second_post_model extends CI_Model {
      * @param int $user_id 用户id
      * @return array
      */
-    function delete($user_id) {
-        $user_id = intval($user_id);
+    function delete($param) {
 
-        if (empty($user_id)) {
+        if (empty($param['second_id']) || empty($param['user_id'])) {
             return false;
         }
 
-        $this->db->where('id', $user_id);
+        $this->db->where('id', $param['second_id']);
+        $this->db->where('user_id', $param['user_id']);
         $result = $this->db->delete($this->db_name);
         return $result;
     }
 
     /**
-     * 用户登录
+     * 赞语句
+     * @param int $id 帖子id
      * @param int $user_id 用户id
      * @return array
      */
-    function login($param) {
-        if (is_array($param) && count($param) > 0) {
-            foreach ($param as $key => $value) {
-                $data[$key] = $this->db->escape_str($value);
-            }
-        }
-
-        if (empty($data['account']) || empty($data['password'])) {
+    function zan($param) {
+        if (empty($param['second_id']) || empty($param['user_id'])) {
             return false;
         }
-
-        $this->db->where('account', $data['account']);
-        $this->db->where('password', $data['password']);
-        $query = $this->db->get($this->db_name);
-        $user = $query->row_array();
-        if (empty($user)) {
-            return false;
-        }
-        $updata['login_time'] = time();
-        $updata['status'] = 1;
-        $this->db->where('id', $user['id']);
-        $result = $this->db->update($this->db_name, $updata);
-        return $user;
-    }
-
-    /**
-     * 开通关闭vip
-     * @param int $user_id 用户id
-     * @param boolean $openvip true为开通，false为关闭
-     * @return array
-     */
-    function vip($user_id, $openvip = false) {
-        $user_id = intval($user_id);
-
-        if (empty($user_id)) {
-            return false;
-        }
-
-        if ($openvip) {
-            $data['vip'] = 1;
-        } else {
-            $data['vip'] = 0;
-        }
-
-        $this->db->where('id', $user_id);
-        $result = $this->db->update($this->db_name, $data);
-        return $result;
-    }
-
-    /**
-     * 修改用户经验vip
-     * @param int $user_id 用户id
-     * @param int $change 修改大小
-     * @return array
-     */
-    function level_score($user_id, $change) {
-        $user_id = intval($user_id);
-        $change = intval($change);
-
-        if (empty($user_id)) {
-            return false;
-        }
-
-        $this->db->select('level_score');
-        $query = $this->db->get($this->db_name);
-        $score = intval($query['level_score']);
-
-        $data['level_score'] = $score + $change;
-
-        $this->db->where('id', $user_id);
-        $result = $this->db->update($this->db_name, $data);
-        return $result;
-    }
-
-    /**
-     * 修改用户vip经验
-     * @param int $user_id 用户id
-     * @param int $change 修改大小
-     * @return array
-     */
-    function vip_score($user_id, $change) {
-        $user_id = intval($user_id);
-        $change = intval($change);
-
-        if (empty($user_id)) {
-            return false;
-        }
-
-        $this->db->select('vip_score');
-        $query = $this->db->get($this->db_name);
-        $score = intval($query['vip_score']);
-
-        $data['vip_score'] = $score + $change;
-
-        $this->db->where('id', $user_id);
-        $result = $this->db->update($this->db_name, $data);
-        return $result;
-    }
-
-    /**
-     * 修改用户登录状态
-     * @param int $user_id 用户id
-     * @param int $change 状态
-     * @return array
-     */
-    function status($user_id, $tag = false) {
-        $user_id = intval($user_id);
-
-        if (empty($user_id)) {
-            return false;
-        }
-
-        if ($tag) {
-            $data['status'] = 1;
-        } else {
-            $data['status'] = 0;
-        }
-
-        $this->db->where('id', $user_id);
-        $result = $this->db->update($this->db_name, $data);
-        return $result;
-    }
-
-    /**
-     * 检查用户名是否存在
-     * @param int $user_id 用户id
-     * @param int $change 状态
-     * @return array
-     */
-    function verifyAccount($account) {
-        $account = $this->db->escape_str($account);
-
-        if (empty($account)) {
-            return false;
-        }
-
-        $this->db->where('account', $account);
-        $result = $this->db->get($this->db_name);
-        
-        if ($result->current_row > 0) {
+        $id = intval($param['second_id']);
+        $sql = "UPDATE `ts_".$this->db_name."` SET `zan_count` = zan_count+1 WHERE `id` =  '".$id."'";
+        $this->db->query($sql);
+        if($this->db->affected_rows()){
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
     
+    /**
+     * 赞语句
+     * @param int $id 帖子id
+     * @param int $user_id 用户id
+     * @return array
+     */
+    function cancelzan($param) {
+        if (empty($param['second_id']) || empty($param['user_id'])) {
+            return false;
+        }
+        $id = intval($param['second_id']);
+        $sql = "UPDATE `ts_".$this->db_name."` SET `zan_count` = zan_count-1 WHERE `id` =  '".$id."'";
+        $this->db->query($sql);
+        if($this->db->affected_rows()){
+            return true;
+        }
+        return false;
+    }
 }
