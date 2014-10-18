@@ -153,7 +153,7 @@ class MainpostController extends CI_Controller{
     //赞
     public function zan() {
         $userArr = $this->getUserInfo();
-        $param['id'] = $this->input->get_post('topic_id', TRUE);
+        $param['id'] = $this->input->get_post('post_id', TRUE);
         if (empty($param['id'])) {
             $this->error(102, '帖子不存在');
         }
@@ -175,7 +175,7 @@ class MainpostController extends CI_Controller{
     //取消赞
     public function cancelzan() {
         $userArr = $this->getUserInfo();
-        $param['id'] = $this->input->get_post('topic_id', TRUE);
+        $param['id'] = $this->input->get_post('post_id', TRUE);
         if (empty($param['id'])) {
             $this->error(102, '帖子不存在');
         }
