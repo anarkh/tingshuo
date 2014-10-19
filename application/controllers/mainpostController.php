@@ -81,6 +81,7 @@ class MainpostController extends CI_Controller{
     public function getpost() {
         $param['limit'] = $this->input->get_post('page', TRUE);
         $param['start'] = $this->input->get_post('min_id', TRUE);
+        $param['role_id'] = $this->input->get_post('role_id', TRUE);
         $this->load->model('Main_post_model');
         $data = $this->Main_post_model->select($param);
         if($data){
