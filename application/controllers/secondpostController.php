@@ -65,6 +65,17 @@ class SecondpostController extends CI_Controller{
         }
         $this->load->model('Second_post_model');
         $data = $this->Second_post_model->select($param['post_id'], $limit, $start);
+        if(is_array($data)){
+            $this->load->model('Comment_model');
+            foreach ($data as $key => $value) {
+                $commentarr = array();
+                $comment = $this->Comment_model->select($value['id'], 2);
+                for($i = 0; $i < 2 && $i < count($comment); $i++){
+                    isset($comment[$i]) && $commentarr[] = $comment[$i];
+                }
+                $data[$key]['comment'] = $commentarr;
+            }
+        }
         if($data){
             $result = array(
                 'status' => 100,

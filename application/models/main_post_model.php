@@ -40,6 +40,9 @@ class Main_post_model extends CI_Model {
             $this->db->where('id <', $start);
         }
         $this->db->order_by("id", "desc");
+        if(!empty($param['role_id'])){
+            $this->db->where('role_id', $param['role_id']);
+        }
         $query = $this->db->get($this->db_name, $limit);
         if ($query->num_rows > 0) {
             $result = $query->result_array();
