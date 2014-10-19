@@ -37,6 +37,7 @@ class Second_post_model extends CI_Model {
         $limit = intval($limit) ? intval($limit) : 10;
         $start = intval($start) ? intval($start) : 0;
         $this->db->where('post_id', $post_id);
+        $this->db->order_by("time", "desc");
         $query = $this->db->get($this->db_name, $limit, $start);
         if (is_array($query->result_array())) {
             $result = $query->result_array();
