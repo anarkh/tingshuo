@@ -169,4 +169,29 @@ class Main_post_model extends CI_Model {
         }
         return false;
     }
+    
+    /**
+     * 获取我的发帖
+     * @param int $limit 返回条数
+     * @param int $start 开始字段
+     * @return array
+     */
+    function selectMypost($param) {
+        $limit = !isset($param['limit']) ? 10 : intval($param['limit']);
+        $start = !isset($param['start']) ? 0 : intval($param['start']);
+        $user_id = $param['user_id'];
+        if($start > 0){
+            $this->db->where('id <', $start);
+        }
+        $this->db->where('user_id', $user_id);
+        $this->db->order_by("id", "desc");
+        $query = $this->db->get($this->db_name, $limit);
+        
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
+            return array_reverse($result);
+        } else {
+            return false;
+        }
+    }
 }

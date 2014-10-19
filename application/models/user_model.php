@@ -304,5 +304,26 @@ class User_model extends CI_Model {
             return false;
         }
     }
+    
+    /**
+     * 基本我的信息
+     * @param int $param 参数列表
+     * @return array
+     */
+    function updataMyUserInfo($param) {
+        $upArr = array('nickname', 'sex', 'brithday', 'phonenum', 'friend_num', 'city');
+        $user_id = $param['user_id'];
+        
+        if (is_array($param) && count($param) > 0) {
+            foreach ($param as $key => $value) {
+                if(in_array($key, $upArr)){
+                    $data[$key] = $this->db->escape_str($value);
+                }
+            }
+        }
+        $this->db->where('id', $user_id);
+        $result = $this->db->update($this->db_name, $data);
+        return $result;
+    }
 
 }

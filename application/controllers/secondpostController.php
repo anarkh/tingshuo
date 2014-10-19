@@ -66,18 +66,17 @@ class SecondpostController extends CI_Controller{
         }
         $this->load->model('Second_post_model');
         $data = $this->Second_post_model->select($param['post_id'], $limit, $start);
-        if($data){
-            $result = array(
-                'status' => 100,
-                'msg' => '获取成功',
-                'data' => $data
-            );
-            $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
-            echo $resultJson;
-            exit;
-        }else{
-            $this->error(103, '获取失败');
+        if(!is_array($data)){
+            $data = array();
         }
+        $result = array(
+            'status' => 100,
+            'msg' => '获取成功',
+            'data' => $data
+        );
+        $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
+        echo $resultJson;
+        exit;
     }
     //修改帖子
     public function changepost() {

@@ -38,7 +38,7 @@ class Second_post_model extends CI_Model {
         $start = intval($start) ? intval($start) : 0;
         $this->db->where('post_id', $post_id);
         $query = $this->db->get($this->db_name, $limit, $start);
-        if ($query->num_rows > 0) {
+        if (is_array($query->result_array())) {
             $result = $query->result_array();
             return array_reverse($result);
         } else {
@@ -168,5 +168,26 @@ class Second_post_model extends CI_Model {
             return true;
         }
         return false;
+    }
+    
+     /**
+     * 我的回复
+     * @param int $limit 返回条数
+     * @param int $start 开始字段
+     * @return array
+     */
+    function selectMySecond($post_id, $user_id, $limit = 10, $start = 0) {
+        $limit = intval($limit) ? intval($limit) : 10;
+        $start = intval($start) ? intval($start) : 0;
+        $this->db->where('post_id', $post_id);
+        $this->db->where('user_id', $user_id);
+        $query = $this->db->get($this->db_name, $limit, $start);
+       
+        if (is_array($query->result_array())) {
+            $result = $query->result_array();
+            return array_reverse($result);
+        } else {
+            return false;
+        }
     }
 }
