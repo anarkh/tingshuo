@@ -323,6 +323,15 @@ class User_model extends CI_Model {
         }
         $this->db->where('id', $user_id);
         $result = $this->db->update($this->db_name, $data);
+        
+        $this->db->where('id', $user_id);
+        $query = $this->db->get($this->db_name);
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
+            return $result[0];
+        } else {
+            return false;
+        }
         return $result;
     }
     /**
@@ -345,5 +354,58 @@ class User_model extends CI_Model {
         } else {
             return false;
         }
+    }
+    /**
+     * 验证密码是否正确
+     * @param int $id 用户Id
+     * @return array
+     */
+    function verifyPassword($id) {
+        $id = $this->db->escape_str($id);
+
+        if (empty($id)) {
+            return false;
+        }
+
+        $this->db->where('id', $id);
+        $query = $this->db->get($this->db_name);
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
+    /**
+     * 修改密码
+     * @param int $id 用户Id
+     * @return array
+     */
+    function updatePassword($id, $newpassword) {
+        $id = $this->db->escape_str($id);
+
+        if (empty($id)) {
+            return false;
+        }
+        $this->db->where('id', $id);
+        $data['password'] = $newpassword;
+        $query = $this->db->update($this->db_name, $data);
+        return $query;
+    }
+    /**
+     * 认证用户
+     * @param int $id 用户Id
+     * @return array
+     */
+    function identifUser($id, $newpassword) {
+        $id = $this->db->escape_str($id);
+
+        if (empty($id)) {
+            return false;
+        }
+        $this->db->where('id', $id);
+        $data['password'] = $newpassword;
+        $query = $this->db->update($this->db_name, $data);
+        return $query;
     }
 }

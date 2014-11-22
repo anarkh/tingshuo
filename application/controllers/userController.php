@@ -232,4 +232,27 @@ class UserController extends CI_Controller{
             $this->error(103, '无记录');
         }
     }
+    //认证用户
+    public function identifUser() {
+         //根据token获取用户信息
+        $userArr = $this->getUserInfo();
+        //接收参数
+        $param['user_id'] = $userArr['id'];
+        $param['account'] = trim($this->input->get_post('account', TRUE));
+        $param['password'] = trim($this->input->get_post('password', TRUE));
+        $this->load->model('User_model');
+        $data = $this->User_model->User_model();
+        if($data){
+            $result = array(
+                'status' => 100,
+                'msg' => '获取成功',
+                'data' => $data
+            );
+            $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
+            echo $resultJson;
+            exit;
+        }else{
+            $this->error(103, '无记录');
+        }
+    }
 }

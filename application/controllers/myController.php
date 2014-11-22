@@ -18,24 +18,29 @@ class myController extends CI_Controller{
     //我的回复
     public function getmysecond() {
         $userArr = $this->getUserInfo();
-        $param['limit'] = $this->input->get_post('limit', TRUE);
-        $param['start'] = $this->input->get_post('start', TRUE);
+        $param['limit'] = intval($this->input->get_post('limit', TRUE));
+        $param['start'] = intval($this->input->get_post('start', TRUE));        
+        $param['post_id'] = intval($this->input->get_post('post_id', TRUE));
         $limit = empty($param['limit']) ? 10 : $param['limit'];
         $page = empty($param['page']) ? 0 : $param['page'];
         $start = empty($param['start']) ? ($page * $limit) : $param['start'];
-        $param['post_id'] = $this->input->get_post('post_id', TRUE);
         $param['token'] = $this->input->get_post('token', TRUE);
         $param['user_id'] = $userArr['id'];
-        if (empty($param['post_id'])) {
-            $this->error(101, '主题不能为空');
-        }
         if (empty($param['user_id'])) {
             $this->error(102, '获取我的信息出错');
         }
-        $this->load->model('Second_post_model');
-        $data = $this->Second_post_model->selectMySecond($param['post_id'], $param['user_id'], $limit, $start);
-    
-        if(!is_array($data)){
+        $this->load->model('Main_post_model');
+        if (isset($param['post_id']) && !empty($param['post_id'])) {
+            $result[] = $this->Main_post_model->getMainpostByPostId($param['post_id']);
+        } else {
+            $this->load->model('Second_post_model');
+            $data = $this->Second_post_model->selectMySecond($param['user_id'], $limit, $start);
+            foreach ($data as $key => $value) {
+                $post_id = $value['post_id'];
+                $result[] = $this->Main_post_model->getMainpostByPostId($post_id);
+            }
+        }
+        if(!is_array($result)){
             $data = array();
         }
         $result = array(
@@ -51,10 +56,10 @@ class myController extends CI_Controller{
     //获取帖子
     public function getmypost() {
         $userArr = $this->getUserInfo();
-        $param['token'] = $this->input->get_post('token', TRUE);
+        $param['token'] = trim($this->input->get_post('token', TRUE));
         $param['user_id'] = $userArr['id'];
-        $param['limit'] = $this->input->get_post('page', TRUE);
-        $param['start'] = $this->input->get_post('min_id', TRUE);
+        $param['limit'] = intval($this->input->get_post('page', TRUE));
+        $param['start'] = intval($this->input->get_post('min_id', TRUE));
         $this->load->model('Main_post_model');
         $data = $this->Main_post_model->selectMypost($param);
         if($data){
@@ -72,32 +77,74 @@ class myController extends CI_Controller{
     }
     //修改个人信息
     public function changuserInfo() {
-        $param['token'] = $this->input->get_post('token', TRUE);
+        $param['token'] = trim($this->input->get_post('token', TRUE));
         $userArr = $this->getUserInfo();
         $param['user_id'] = $userArr['id'];
-        $param['nickname'] = $this->input->get_post('nickname', TRUE);
-        $param['sex'] = $this->input->get_post('sex', TRUE);
-        $param['brithday'] = $this->input->get_post('brithday', TRUE);
-        $param['phonenum'] = $this->input->get_post('phonenum', TRUE);
-        $param['friend_num'] = $this->input->get_post('friend_num', TRUE);
-        $param['city'] = $this->input->get_post('city', TRUE);
+        
+        if ($this->input->get_post('nickname', TRUE)) {
+            $param['nickname'] = trim($this->input->get_post('nickname', TRUE));
+        }
+        if ($this->input->get_post('sex', TRUE) == 1 || $this->input->get_post('sex', TRUE) == 0) {
+            $param['sex'] = intval($this->input->get_post('sex', TRUE));
+        } else {
+            $this->error(101, '性别只能选择男或者女');
+        }
+        if ($this->input->get_post('brithday', TRUE)) {
+            $param['brithday'] = trim($this->input->get_post('brithday', TRUE));
+        } 
+        if ($this->input->get_post('phonenum', TRUE)) {
+            $param['phonenum'] = trim($this->input->get_post('phonenum', TRUE));
+        } 
+        if ($this->input->get_post('friend_num', TRUE)) {
+            $param['friend_num'] = trim($this->input->get_post('friend_num', TRUE));
+        }
+        if ($this->input->get_post('city', TRUE)) {
+            $param['city'] = trim($this->input->get_post('city', TRUE));
+        }
         if (empty($param['user_id'])) {
-            $this->error(101, '该用户信息不存在');
+            $this->error(102, '该用户信息不存在');
         }
-        if (empty($param['nickname'])) {
-            $this->error(102, '请输入用户名');
+        if (empty($param['user_id'])) {
+            $this->error(103, '该用户信息不存在');
         }
-        if (empty($param['sex'])) {
-            $this->error(103, '性别不能为空');
-        }
-        if (empty($param['phonenum'])) {
-            $this->error(104, '手机号不能为空');
-        }
-        $param['head'] = $userArr['head'];
         $this->load->model('User_model');
         $data = $this->User_model->updataMyUserInfo($param);
-        
         if($data){
+            $result = array(
+                'status' => 100,
+                'msg' => '修改成功',
+                'data' => $data
+            );
+            $resultJson = json_encode($result);
+            echo $resultJson;
+            exit;
+        }else{
+            $this->error(103, '修改失败');
+        }
+    }
+    //修改密码
+    public function updatePassword() {
+        //根据token获取用户信息
+        $userArr = $this->getUserInfo();
+        //接收参数
+        $param['user_id'] = $userArr['id'];
+        $param['oldpassword'] = trim($this->input->get_post('oldpassword', TRUE));
+        if ($this->input->get_post('newpassword', TRUE) && strlen($this->input->get_post('newpassword', TRUE)) >= 6) {
+            $param['newpassword'] = trim($this->input->get_post('newpassword', TRUE));
+        } else {
+            $this->error(101, '密码不能少于6位');
+        }
+        //旧密码验证是否正确
+        if (isset($param['oldpassword'])) {
+            $this->load->model('User_model');
+            $data = $this->User_model->verifyPassword($param['user_id']);
+            if ($data['password'] == $param['oldpassword']) {
+                $upflag = $this->User_model->updatePassword($param['user_id'], $param['newpassword']);
+            } else {
+                $this->error(101, '旧密码不正确');
+            }
+        }
+        if($upflag){
             $result = array(
                 'status' => 100,
                 'msg' => '修改成功',
@@ -106,7 +153,7 @@ class myController extends CI_Controller{
             echo $resultJson;
             exit;
         }else{
-            $this->error(103, '修改失败');
+            $this->error(102, '修改失败');
         }
     }
 }

@@ -177,10 +177,9 @@ class Second_post_model extends CI_Model {
      * @param int $start 开始字段
      * @return array
      */
-    function selectMySecond($post_id, $user_id, $limit = 10, $start = 0) {
+    function selectMySecond($user_id, $limit = 10, $start = 0) {
         $limit = intval($limit) ? intval($limit) : 10;
         $start = intval($start) ? intval($start) : 0;
-        $this->db->where('post_id', $post_id);
         $this->db->where('user_id', $user_id);
         $query = $this->db->get($this->db_name, $limit, $start);
        

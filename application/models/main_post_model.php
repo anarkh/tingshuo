@@ -197,4 +197,22 @@ class Main_post_model extends CI_Model {
             return false;
         }
     }
+    /**
+     * 根据帖子ID获取帖子信息
+     * @param int $post_id
+     * @return array
+     */
+    function getMainpostByPostId($post_id) {
+        $post_id = isset($post_id) ? intval($post_id) : "11";
+        $this->db->where('id', $post_id);
+        $this->db->order_by("id", "desc");
+        $query = $this->db->get($this->db_name);
+        
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
+            return array_reverse($result);
+        } else {
+            return false;
+        }
+    }
 }
