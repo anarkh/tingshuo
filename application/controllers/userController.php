@@ -187,4 +187,49 @@ class UserController extends CI_Controller{
           } 
           return $token;  
       }
+    //通过用户ID取用户信息
+    public function getUserInfoByUserId() {
+        $id = $this->input->get_post('id', TRUE);
+        $this->load->model('User_model');
+        $this->load->model('Role_model');
+        $this->load->model('User_role_model');
+        $data = $this->User_model->getUserInfoById($id);
+        //查询该用户的角色
+        $role_id = $this->User_role_model->getRoleIdById($id);
+        if (isset($role_id) && !empty($role_id)) {
+            $role = $this->Role_model->selectRoleByRoleId($role_id);
+        } else {
+            $data['msg'] = '该用户无角色';
+        }
+        $data['role'] = $role->role;
+        if($data){
+            $result = array(
+                'status' => 100,
+                'msg' => '获取成功',
+                'data' => $data
+            );
+            $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
+            echo $resultJson;
+            exit;
+        }else{
+            $this->error(103, '获取失败');
+        }
+    }
+    //获取热门角色列表
+    public function getRoleList() {
+        $this->load->model('Role_model');
+        $data = $this->Role_model->getHotRoleList();
+        if($data){
+            $result = array(
+                'status' => 100,
+                'msg' => '获取成功',
+                'data' => $data
+            );
+            $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
+            echo $resultJson;
+            exit;
+        }else{
+            $this->error(103, '无记录');
+        }
+    }
 }

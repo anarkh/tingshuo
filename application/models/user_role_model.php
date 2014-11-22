@@ -121,5 +121,26 @@ class User_role_model extends CI_Model {
         $result = $this->db->delete($this->db_name);
         return $result;
     }
+    /**
+     * 根据用户ID获取角色ID
+     * @param int $user_id 用户Id
+     * @return array
+     */
+    function getRoleIdById($user_id) {
+        $user_id = $this->db->escape_str($user_id);
+
+        if (empty($user_id)) {
+            return false;
+        }
+
+        $this->db->where('user_id', $user_id);
+        $query = $this->db->get($this->db_name);
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
+            return $result[0]['role_id'];
+        } else {
+            return false;
+        }
+    }
    
 }

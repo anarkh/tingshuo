@@ -122,7 +122,7 @@ class Role_model extends CI_Model {
         return $result;
     }
     
-     /**
+    /**
      * 通过角色ID取出角色名称
      * @param int 角色id
      * @return array
@@ -132,6 +132,18 @@ class Role_model extends CI_Model {
         $this->db->where('id',$id);
         $query = $this->db->get($this->db_name);
         $result = $query->result()[0];
+        return $result;
+    }
+    
+    /**
+     * 获取热门角色列表
+     *
+     * @return array
+     */
+    function getHotRoleList() {
+        $this->db->where('tag',1);
+        $query = $this->db->get($this->db_name);
+        $result = $query->result();
         return $result;
     }
     

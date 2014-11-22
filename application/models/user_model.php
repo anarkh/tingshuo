@@ -325,5 +325,25 @@ class User_model extends CI_Model {
         $result = $this->db->update($this->db_name, $data);
         return $result;
     }
+    /**
+     * 根据用户ID获取用户信息
+     * @param int $id 用户Id
+     * @return array
+     */
+    function getUserInfoById($id) {
+        $$id = $this->db->escape_str($id);
 
+        if (empty($id)) {
+            return false;
+        }
+
+        $this->db->where('id', $id);
+        $query = $this->db->get($this->db_name);
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
+            return $result[0];
+        } else {
+            return false;
+        }
+    }
 }
