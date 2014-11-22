@@ -397,14 +397,13 @@ class User_model extends CI_Model {
      * @param int $id 用户Id
      * @return array
      */
-    function identifUser($id, $newpassword) {
-        $id = $this->db->escape_str($id);
-
-        if (empty($id)) {
+    function identifyUser($id, $account, $password) {
+        if (empty($account) || empty($password)) {
             return false;
         }
+        $data['account'] = $account;
+        $data['password'] = $password;
         $this->db->where('id', $id);
-        $data['password'] = $newpassword;
         $query = $this->db->update($this->db_name, $data);
         return $query;
     }

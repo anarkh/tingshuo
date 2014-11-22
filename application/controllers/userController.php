@@ -241,18 +241,18 @@ class UserController extends CI_Controller{
         $param['account'] = trim($this->input->get_post('account', TRUE));
         $param['password'] = trim($this->input->get_post('password', TRUE));
         $this->load->model('User_model');
-        $data = $this->User_model->User_model();
+        $data = $this->User_model->identifyUser($param['user_id'], $param['account'], $param['password']);
         if($data){
             $result = array(
                 'status' => 100,
-                'msg' => '获取成功',
+                'msg' => '认证成功',
                 'data' => $data
             );
             $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
             echo $resultJson;
             exit;
         }else{
-            $this->error(103, '无记录');
+            $this->error(101, '认证失败');
         }
     }
 }

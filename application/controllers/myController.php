@@ -40,13 +40,10 @@ class myController extends CI_Controller{
                 $result[] = $this->Main_post_model->getMainpostByPostId($post_id);
             }
         }
-        if(!is_array($result)){
-            $data = array();
-        }
         $result = array(
             'status' => 100,
             'msg' => '获取我的回复成功',
-            'data' => $data
+            'data' => $result[0]
         );
         $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
         echo $resultJson;

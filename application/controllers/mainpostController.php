@@ -79,23 +79,19 @@ class MainpostController extends CI_Controller{
     
     //获取帖子
     public function getpost() {
-        $param['limit'] = $this->input->get_post('page', TRUE);
-        $param['start'] = $this->input->get_post('min_id', TRUE);
+        $param['limit'] = $this->input->get_post('limit', TRUE);
+        $param['start'] = $this->input->get_post('start', TRUE);
         $param['role_id'] = $this->input->get_post('role_id', TRUE);
         $this->load->model('Main_post_model');
         $data = $this->Main_post_model->select($param);
-        if($data){
-            $result = array(
-                'status' => 100,
-                'msg' => '发帖成功',
-                'data' => $data
-            );
-            $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
-            echo $resultJson;
-            exit;
-        }else{
-            $this->error(103, '获取失败');
-        }
+        $result = array(
+            'status' => 100,
+            'msg' => '获取成功',
+            'data' => $data
+        );
+        $resultJson = json_encode($result,JSON_UNESCAPED_UNICODE);
+        echo $resultJson;
+        exit;
     }
     //修改帖子
     public function changepost() {
