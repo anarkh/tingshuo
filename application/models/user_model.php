@@ -340,7 +340,7 @@ class User_model extends CI_Model {
      * @return array
      */
     function getUserInfoById($id) {
-        $$id = $this->db->escape_str($id);
+        $id = $this->db->escape_str($id);
 
         if (empty($id)) {
             return false;
@@ -351,6 +351,25 @@ class User_model extends CI_Model {
         if ($query->num_rows > 0) {
             $result = $query->result_array();
             return $result[0];
+        } else {
+            return false;
+        }
+    }
+    /**
+     * 根据用户ID批量获取用户信息
+     * @param int $id 用户Id
+     * @return array
+     */
+    function getUserInfoByIdArr($idarr) {
+        foreach ($idarr as $key => $value) {
+            $idarr[$key] = $this->db->escape_str($value);
+        }
+
+        $this->db->where_in('id', $idarr);
+        $query = $this->db->get($this->db_name);
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
+            return $result;
         } else {
             return false;
         }
