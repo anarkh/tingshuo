@@ -55,6 +55,7 @@ class AddfriendController extends CI_Controller{
                 $temp['id'] = $value['to_id'];
                 $temp['from_id'] = $value['from_id'];
                 $temp['to_id'] = $value['to_id'];
+                $temp['request_id'] = $value['id'];
                 $temp['request_time'] = $value['request_time'];
                 $userarr[$value['to_id']] = $temp;
             }
@@ -89,6 +90,7 @@ class AddfriendController extends CI_Controller{
                 $temp['id'] = $value['from_id'];
                 $temp['from_id'] = $value['from_id'];
                 $temp['to_id'] = $value['to_id'];
+                $temp['request_id'] = $value['id'];
                 $temp['request_time'] = $value['request_time'];
                 $userarr[$value['from_id']] = $temp;
             }
@@ -129,6 +131,7 @@ class AddfriendController extends CI_Controller{
                     $result[$key]['vip_level'] = $value['vip_level'];
                     $result[$key]['request_from_id'] = $requeatarr[$value['id']]['from_id'];
                     $result[$key]['request_to_id'] = $requeatarr[$value['id']]['to_id'];
+                    $result[$key]['request_id'] = $requeatarr[$value['id']]['request_id'];
                     $result[$key]['request_time'] = $requeatarr[$value['id']]['request_time'];
                 }
             }
