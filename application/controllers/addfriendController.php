@@ -48,11 +48,15 @@ class AddfriendController extends CI_Controller{
         $user_id = $userArr['id'];
         $this->load->model('Addfriend_request_model');
         $data = $this->Addfriend_request_model->getFromAddfriendByUserId($user_id);
-        
         $userarr = array();
+        $temp = array();
         foreach ($data as $value) {
             if(!empty($value['to_id'])){
-                $userarr[] = $value['to_id'];
+                $temp['id'] = $value['to_id'];
+                $temp['from_id'] = $value['from_id'];
+                $temp['to_id'] = $value['to_id'];
+                $temp['request_time'] = $value['request_time'];
+                $userarr[$value['to_id']] = $temp;
             }
         }
         
@@ -79,21 +83,18 @@ class AddfriendController extends CI_Controller{
         $data = $this->Addfriend_request_model->getToAddfriendByUserId($user_id);
         
         $userarr = array();
-        $friendarr = array();
+        $temp = array();
         foreach ($data as $value) {
             if(!empty($value['from_id'])){
-                $userarr[] = $value['from_id'];
-                $friendarr[$value['from_id']] = $value['id'];
+                $temp['id'] = $value['from_id'];
+                $temp['from_id'] = $value['from_id'];
+                $temp['to_id'] = $value['to_id'];
+                $temp['request_time'] = $value['request_time'];
+                $userarr[$value['from_id']] = $temp;
             }
         }
-        $userResulttemp = $this->getrequestuser($userarr);
-        $userResult = array();
-        foreach ($userResulttemp as $key => $value) {
-            if(!empty($friendarr[$value['id']])){
-                $userResult[$key] = $value;
-                $userResult[$key]['request_friend_id'] = $friendarr[$value['id']];
-            }
-        }
+        
+        $userResult = $this->getrequestuser($userarr);
         if(is_array($userResult)){
             $result = array(
                 'status' => 100,
@@ -111,16 +112,25 @@ class AddfriendController extends CI_Controller{
     protected function getrequestuser($requeatarr) {
         if(is_array($requeatarr) && count($requeatarr) > 0){
             $this->load->model('User_model');
-            $data = $this->User_model->getUserInfoByIdArr($requeatarr);
+            $userarr = array();
+            foreach ($requeatarr as $key => $value) {
+                $userarr[] = $value['id'];
+            }
+            $data = $this->User_model->getUserInfoByIdArr($userarr);
             $result = array();
             foreach ($data as $key => $value) {
-                $result[$key]['id'] = $value['id'];
-                $result[$key]['nickname'] = $value['nickname'];
-                $result[$key]['head'] = $value['head'];
-                $result[$key]['sex'] = $value['sex'];
-                $result[$key]['city'] = $value['city'];
-                $result[$key]['is_vip'] = $value['is_vip'];
-                $result[$key]['vip_level'] = $value['vip_level'];
+                if(!empty($requeatarr[$value['id']]['request_time'])){
+                    $result[$key]['id'] = $value['id'];
+                    $result[$key]['nickname'] = $value['nickname'];
+                    $result[$key]['head'] = $value['head'];
+                    $result[$key]['sex'] = $value['sex'];
+                    $result[$key]['city'] = $value['city'];
+                    $result[$key]['is_vip'] = $value['is_vip'];
+                    $result[$key]['vip_level'] = $value['vip_level'];
+                    $result[$key]['request_from_id'] = $requeatarr[$value['id']]['from_id'];
+                    $result[$key]['request_to_id'] = $requeatarr[$value['id']]['to_id'];
+                    $result[$key]['request_time'] = $requeatarr[$value['id']]['request_time'];
+                }
             }
             return $result;
         }else{
