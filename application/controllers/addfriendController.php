@@ -26,7 +26,7 @@ class AddfriendController extends CI_Controller{
         $param['user_id'] = $userArr['id'];
         
         $this->load->model('Addfriend_request_model');
-        $data = $this->Addfriend_request_model->insert($param);
+        $data = $this->Addfriend_request_model->addfriend($param);
         if($data){
             $result = array(
                 'status' => 100,
@@ -150,8 +150,6 @@ class AddfriendController extends CI_Controller{
         }
         $this->load->model('Addfriend_request_model');
         $data = $this->Addfriend_request_model->getById($request_id);
-        var_dump($data);
-        var_dump($data);
         if(!is_array($data) || empty($data['from_id']) || empty($data['to_id']) || $from_id != $data['from_id'] || $userArr['id'] != $data['to_id']){
             $this->error(102, '为找到此条好友请求');
         }

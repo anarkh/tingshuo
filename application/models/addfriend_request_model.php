@@ -83,6 +83,39 @@ class Addfriend_request_model extends CI_Model {
      * @param int $user_id 用户Id
      * @return array
      */
+    function addfriend($param) {
+        if(empty($param['user_id']) || empty($param['to_id'])){
+            return false;
+        }
+        
+        $from_id = $this->db->escape_str($param['user_id']);
+        $to_id = $this->db->escape_str($param['to_id']);
+        $this->db->where('from_id', $from_id);
+        $this->db->where('to_id', $to_id);
+        $query = $this->db->get($this->db_name);
+        if($query->num_rows > 0){
+            $data['status'] = 0;
+            $data['request_time'] = time();
+            $this->db->where('from_id', $from_id);
+            $this->db->where('to_id', $to_id);
+            $query = $this->db->update($this->db_name, $data);
+            return $query;
+        }else{
+            $data = array(
+                'from_id' => $from_id,
+                'to_id' => $to_id,
+                'status' => 0,
+                'request_time' => time() 
+            ); 
+            $result = $this->db->insert($this->db_name, $data);
+            return $result;
+        }
+    }
+    /**
+     * 根据用户ID获取角色发送的好友请求
+     * @param int $user_id 用户Id
+     * @return array
+     */
     function getFromAddfriendByUserId($user_id) {
         $from_id = $this->db->escape_str($user_id);
 
@@ -112,6 +145,7 @@ class Addfriend_request_model extends CI_Model {
         $time = time() - 604800;
         $this->db->where('to_id', $to_id);
         $this->db->where('request_time >', $time);
+        $this->db->where('status', 0);
         $query = $this->db->get($this->db_name);
         $result = $query->result_array();
         return $result;

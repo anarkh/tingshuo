@@ -426,4 +426,24 @@ class User_model extends CI_Model {
         $query = $this->db->update($this->db_name, $data);
         return $query;
     }
+    /**
+     * 模糊查询语句
+     * @param int $limit 返回条数
+     * @param int $start 开始字段
+     * @return array
+     */
+    function search($key, $limit = 20, $start = 0) {
+        $limit = intval($limit) ? intval($limit) : 20;
+        $start = intval($start) ? intval($start) : 0;
+        $this->db->select('id, nickname, head, level, is_vip, vip_level');
+        $this->db->like('id', $key);
+        $this->db->or_like('nickname', $key);
+        $query = $this->db->get($this->db_name, $limit, $start);
+        if ($query->num_rows > 0) {
+            $result = $query->result_array();
+            return $result;
+        } else {
+            return false;
+        }
+    }
 }

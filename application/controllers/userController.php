@@ -198,10 +198,10 @@ class UserController extends CI_Controller{
         $role_id = $this->User_role_model->getRoleIdById($id);
         if (isset($role_id) && !empty($role_id)) {
             $role = $this->Role_model->selectRoleByRoleId($role_id);
+            $data['role'] = $role->role;
         } else {
             $data['msg'] = '该用户无角色';
         }
-        $data['role'] = $role->role;
         if($data){
             $result = array(
                 'status' => 100,

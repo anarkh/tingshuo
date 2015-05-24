@@ -64,6 +64,48 @@ class UserfriendController extends CI_Controller{
             return [];
         }
     }
+    //搜索好友
+    public function searchfriend() {
+        $userArr = $this->getUserInfo();
+        $user_id = $userArr['id'];
+        $key = $this->input->get_post('key', TRUE);
+        $limit = $this->input->get_post('limit', TRUE);
+        $start = $this->input->get_post('start', TRUE);
+        if (empty($key)) {
+            $this->error(102, '好友不能为空');
+        }
+        $this->load->model('User_model');
+        $data = $this->User_model->search($key, $limit, $start);
+        if (is_array($data)){
+            $this->load->model('User_friend_model');
+            $friendArr = $this->User_friend_model->selectById($user_id);
+            $friendidarr = array();
+            if (is_array($friendArr)){
+                foreach ($friendArr as $value) {
+                    if(!empty($value['friend_id'])){
+                        $friendidarr[] = $value['friend_id'];
+                    }
+                }
+            }
+            $searcharr = array();
+            foreach ($data as $v) {
+                if(!in_array($v['id'], $friendidarr) && $v['id'] != $user_id){
+                    $searcharr[] = $v;
+                }
+            }
+            $result = array(
+                'status' => 100,
+                'msg' => '搜索成功',
+                'data' => $searcharr
+            );
+            $resultJson = json_encode($result);
+            echo $resultJson;
+            exit;
+        }else{
+            $this->error(103, '搜索失败');
+        }
+        
+    }
     //删除好友
     public function deletefriend() {
         $userArr = $this->getUserInfo();

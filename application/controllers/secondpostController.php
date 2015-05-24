@@ -76,7 +76,8 @@ class SecondpostController extends CI_Controller{
                 $data[$key]['comment'] = $commentarr;
             }
         }
-        if($data){
+        
+        if($data || ( is_array($data))){
             $result = array(
                 'status' => 100,
                 'msg' => '获取成功',
